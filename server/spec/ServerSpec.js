@@ -91,4 +91,61 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  // POST request should also send back array
+  it('Should send back an array', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    var parsedBody = JSON.parse(res._data);
+    expect(parsedBody).to.be.an('array');
+    expect(res._ended).to.equal(true);
+  });
+
+  // GET request should send back same number of messages as in server data storage
+  it('Should send all messages in data storage', function() {
+    let req = new stubs.request('/classes/messages', 'GET');
+    let res = new stubs.response();
+    handler.requestHandler(req, res);
+
+    let clientMessageLength = JSON.parse(res._data).length;
+    let serverMessageLength = handler.data.storage.length;
+
+    expect(clientMessageLength).to.equal(serverMessageLength);
+
+
+    let stubMsg = {};
+    req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    res = new stubs.response();
+    handler.requestHandler(req, res);
+
+
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+    handler.requestHandler(req, res);
+
+    clientMessageLength = JSON.parse(res._data).length;
+    serverMessageLength = handler.data.storage.length;
+
+    expect(clientMessageLength).to.equal(serverMessageLength);
+
+  });
+
+  // POST request messages should send stringified array with object containing two keys
+  it('Should send response object with two keys (stringified)', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!'
+    };
+    let req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    let res = new stubs.response();
+
+  });
+
+  // GET request sends stringified array with object containing 5 keys
 });
